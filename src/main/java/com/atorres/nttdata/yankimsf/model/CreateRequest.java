@@ -7,5 +7,5 @@ public class CreateRequest {
   private String phone;
   private String imei;
   private String email;
-  private String accountId;
+  private String debitId;
 }

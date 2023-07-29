@@ -9,8 +9,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class YankiDao {
   @Id
   private String id;
+  private String name;
   private String phone;
   private String imei;
   private String email;
+  private String debitId;
   private String accountId;
 }
