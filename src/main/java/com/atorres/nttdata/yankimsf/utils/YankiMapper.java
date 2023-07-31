@@ -1,9 +1,15 @@
 package com.atorres.nttdata.yankimsf.utils;
 
 import com.atorres.nttdata.yankimsf.model.CreateRequest;
+import com.atorres.nttdata.yankimsf.model.PaidRequest;
+import com.atorres.nttdata.yankimsf.model.PaidResponse;
 import com.atorres.nttdata.yankimsf.model.YankiDto;
+import com.atorres.nttdata.yankimsf.model.accountms.RequestUpdateAccount;
 import com.atorres.nttdata.yankimsf.model.dao.YankiDao;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 @Component
 public class YankiMapper {
@@ -28,5 +34,21 @@ public class YankiMapper {
     yanki.setDebitId(request.getDebitId());
     yanki.setAccountId(mainAccount);
     return  yanki;
+  }
+
+  public RequestUpdateAccount toUpdateAccount(BigDecimal balance, String from){
+    RequestUpdateAccount request = new RequestUpdateAccount();
+    request.setBalance(balance);
+    request.setAccountId(from);
+    return  request;
+  }
+
+  public PaidResponse toResponse(PaidRequest request){
+    PaidResponse response = new PaidResponse();
+    response.setPhone(request.getPhone());
+    response.setDestination(request.getDestination());
+    response.setAmount(request.getAmount());
+    response.setDate(new Date());
+    return response;
   }
 }

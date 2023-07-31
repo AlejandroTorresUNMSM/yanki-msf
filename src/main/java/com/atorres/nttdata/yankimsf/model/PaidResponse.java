@@ -3,9 +3,10 @@ package com.atorres.nttdata.yankimsf.model;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
-public class TransactionRequest {
+public class PaidResponse {
   /**
    * Numero de telefono del cliente
    */
@@ -13,9 +14,13 @@ public class TransactionRequest {
   /**
    * Monto a transferir
    */
-  private BigDecimal mount;
+  private BigDecimal amount;
   /**
    * Numero de telefono del destinatario
    */
   private String destination;
+  /**
+   * Dia del pago
+   */
+  private Date date;
 }
