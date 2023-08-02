@@ -68,18 +68,14 @@ public class YankiService {
     String sourcePhone = request.getPhone();
     String destinationPhone = request.getDestination();
     //Obtenemos los YankiDao
-    Mono<YankiDao> yankiFrom = yankiRepository.findByPhone(sourcePhone)
-        .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "No tiene monedero Yanki")));
-    Mono<YankiDao> yakiTo = yankiRepository.findByPhone(destinationPhone)
-        .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "No se encontró la billetera de destinatario")));
+    Mono<AccountDto> yankiAccountFrom = this.getAccountByPhone(sourcePhone);
+    Mono<AccountDto> yankiAccountTo = this.getAccountByPhone(destinationPhone);
 
-    return Mono.zip(yankiFrom, yakiTo)
+    return Mono.zip(yankiAccountFrom, yankiAccountTo)
         .flatMap(tuple -> {
-          YankiDao sourceYankiDao = tuple.getT1();
-          YankiDao destinationYankiDao = tuple.getT2();
           //Obtenemos las cuentas
-          Mono<AccountDto> accountFrom = feignApiAccount.getAccount(sourceYankiDao.getAccountId()).single();
-          Mono<AccountDto> accountTo = feignApiAccount.getAccount(destinationYankiDao.getAccountId()).single();
+          Mono<AccountDto> accountFrom = Mono.just(tuple.getT1());
+          Mono<AccountDto> accountTo = Mono.just(tuple.getT2());
 
           return Mono.zip(accountFrom, accountTo)
               .map(accountTuple -> modifyMapAccount(accountTuple.getT1(), accountTuple.getT2(), request.getAmount()))
@@ -91,6 +87,19 @@ public class YankiService {
                   .then());
         })
         .thenReturn(mapper.toResponse(request));
+  }
+
+  /**
+   * Metodo que trae la cuenta apartir del celular
+   * @param phone celular
+   * @return account
+   */
+  private Mono<AccountDto> getAccountByPhone(String phone){
+    return  yankiRepository.findByPhone(phone)
+        .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "No tiene monedero Yanki")))
+        .flatMap(yanki -> feignApiAccount.getAccount(yanki.getAccountId())
+            .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "No existe la cuenta")))
+            .single());
   }
 
   /**
